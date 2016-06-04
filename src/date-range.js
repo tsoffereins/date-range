@@ -1,6 +1,13 @@
 (function(root)
 {
 	/**
+	 * The number of miliseconds a day lasts.
+	 * 
+	 * @type number
+	 */
+	var dayTime = 1000 * 60 * 60 * 24;
+
+	/**
 	 * Construct a new DateRange.
 	 *
 	 * @param  Date  start
@@ -9,6 +16,18 @@
 	 */
 	var DateRange = root.DateRange = function(start, end)
 	{
+		start = new Date(
+			start.getFullYear(),
+			start.getMonth(),
+			start.getDate()
+		);
+
+		end = new Date(
+			end.getFullYear(),
+			end.getMonth(),
+			end.getDate()
+		);
+		
 		if ( ! isValidDate(start) || ! isValidDate(end))
 		{
 			throw new Error('Arguments should be valid dates.');
@@ -27,33 +46,6 @@
 	DateRange.prototype = Object.create(null);
 
 	/**
-	 * Convert the DateRange object to one without time.
-	 * 
-	 * @return void
-	 */
-	DateRange.prototype.timeless = function()
-	{
-		var start = new Date(
-			this.start.getFullYear(),
-			this.start.getMonth(),
-			this.start.getDate()
-		);
-
-		var end = new Date(
-			this.end.getFullYear(),
-			this.end.getMonth(),
-			this.end.getDate()
-		);
-
-		if (start >= end)
-		{
-			throw new Error('Can\'t convert to a timeless DateRange when start and end are on the same date.');
-		}
-
-		return new DateRange(start, end);
-	};
-
-	/**
 	 * Get the number of miliseconds in the range.
 	 * 
 	 * @return number
@@ -64,87 +56,54 @@
 	};
 
 	/**
-	 * Get the number of whole seconds in the range.
+	 * Get the number of days in the range.
 	 * 
 	 * @return number
 	 */
-	DateRange.prototype.getSeconds = function()
+	DateRange.prototype.countDays = function()
 	{
-		return Math.floor(this.getTime() / 1000);
+		return (this.getTime() / dayTime) + 1;
 	};
 
 	/**
-	 * Get the number of whole minutes in the range.
+	 * Get all years in the range.
 	 * 
-	 * @return number
-	 */
-	DateRange.prototype.getMinutes = function()
-	{
-		return Math.floor(this.getSeconds() / 60);
-	};
-
-	/**
-	 * Get the number of whole hours in the range.
-	 * 
-	 * @return number
-	 */
-	DateRange.prototype.getHours = function()
-	{
-		return Math.floor(this.getMinutes() / 60);
-	};
-
-	/**
-	 * Get the number of whole days in the range.
-	 * 
-	 * @return number
-	 */
-	DateRange.prototype.getDays = function()
-	{
-		return Math.floor(this.getHours() / 24);
-	};
-
-	/**
-	 * Get the number of whole weeks in the range.
-	 * 
-	 * @return number
-	 */
-	DateRange.prototype.getWeeks = function()
-	{
-		return Math.floor(this.getDays() / 7);
-	};
-
-	/**
-	 * Get the number of whole years in the range.
-	 * 
-	 * @return number
+	 * @return array
 	 */
 	DateRange.prototype.getYears = function()
 	{
-		return Math.floor(this.getWeeks() / 52);
+		var start = this.start.getFullYear();
+
+		var count = this.end.getFullYear() - start + 1;
+
+		var years = [];
+
+		for (var i = 0; i < count; i++)
+		{
+			years.push(start + i);
+		}
+
+		return years;
 	};
 
 	/**
-	 * Get all dates in the range as timeless dates.
+	 * Get all dates in the range.
 	 * 
 	 * @return array
 	 */
 	DateRange.prototype.getDates = function()
 	{
-		var timeless = this.timeless();
-
-		var n_days = timeless.getDays() + 1;
-
-		var day_in_time = 1000 * 60 * 60 * 24;
+		var nDays = this.countDays();
 
 		var dates = [];
 
-		for (var i = 0; i < n_days; i++)
+		for (var i = 0; i < nDays; i++)
 		{
-			var time = timeless.start.getTime() + (day_in_time * i);
-
 			var date = new Date();
 
-			date.setTime(time);
+			date.setTime(
+				this.start.getTime() + (dayTime * i)
+			);
 
 			dates.push(date);
 		}
@@ -163,20 +122,27 @@
 		 */
 		DateRange.prototype['get' + day + 's'] = function()
 		{
-			return this.getDates().filter(function(date)
-			{
-				return date.getDay() === index;
-			});
-		};
+			var nDays = this.countDays();
 
-		/**
-		 * Count the dates in the range that are a [day].
-		 * 
-		 * @return array
-		 */
-		DateRange.prototype['count' + day + 's'] = function()
-		{
-			return this['get' + day + 's']().length;
+			var dates = [];
+
+			for (var i = 0; i < nDays;)
+			{
+				var date = new Date();
+
+				date.setTime(
+					this.start.getTime() + (dayTime * i)
+				);
+
+				if (( ! dates.length && date.getDay() == index) || dates.length)
+				{
+					dates.push(date);
+				}
+
+				dates.length > 0 ? i += 7 : i++;
+			}
+
+			return 	dates;
 		};
 	});
 
@@ -199,26 +165,16 @@
 	};
 
 	/**
-	 * Get the index of the date in the range.
+	 * Get the index of a date in the range.
 	 * 
 	 * @param  Date  value
 	 * @return number
 	 */
 	DateRange.prototype.indexOf = function(date)
 	{
-		if ( ! isValidDate(date)) return -1;
+		if ( ! this.contains(date)) return -1;
 
-		var dates = this.getDates();
-
-		for (var i = 0; i < dates.length; i++)
-		{
-			if (dates[i] >= date && dates[i] <= date)
-			{
-				return i;
-			}
-		}
-
-		return -1;
+		return (date.getTime() - this.start.getTime()) / dayTime;
 	};
 
 	/**
@@ -229,6 +185,8 @@
 	 */
 	DateRange.prototype.intersection = function(range)
 	{
+		if ( ! isDateRange(range)) return false;
+
 		var start = max([this.start, range.start]);
 		
 		var end = min([this.end, range.end]);
@@ -246,8 +204,34 @@
 	 */
 	DateRange.prototype.doesIntersect = function(range)
 	{
-		return range.start <= this.end && range.end >= this.start;
+		return isDateRange(range) && range.start <= this.end && range.end >= this.start;
 	};
+
+	/**
+	 * Get all leap years in the range.
+	 * 
+	 * @return array
+	 */
+	DateRange.prototype.getLeapYears = function()
+	{
+		return this.getYears().filter(function(year)
+		{
+			return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+		});
+	}
+
+	/**
+	 * Get all friday the 13ths in the range.
+	 * 
+	 * @return array
+	 */
+	DateRange.prototype.getFridayThe13ths = function()
+	{
+		return this.getFridays().filter(function(date)
+		{
+			return date.getDate() == 13;
+		});
+	}
 
 	/**
 	 * Determine if a value is a valid Date.
@@ -258,6 +242,17 @@
 	function isValidDate(value)
 	{
 		return value instanceof Date && value != 'Invalid Date';
+	}
+
+	/**
+	 * Determine if a value is a DateRange.
+	 * 
+	 * @param  mixed  value
+	 * @return boolean
+	 */
+	function isDateRange(value)
+	{
+		return value instanceof DateRange;
 	}
 
 	/**

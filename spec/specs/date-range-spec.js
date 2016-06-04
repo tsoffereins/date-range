@@ -33,42 +33,33 @@ describe('DateRange@construct', function()
 			new DateRange(new Date(2016, 0, 1), new Date(2016, 0, 1));
 		}).toThrow();
 	});
-});
 
-describe('DateRange@timeless', function()
-{
-	it('should return a DateRange with time to 00:00:00.', function()
+	it('should ignore time.', function()
 	{
-		var start = new Date(2015, 0, 1, 6, 12, 34);
+		var start = new Date(2015, 0, 1, 7, 8, 9);
 
-		var end = new Date(2016, 0, 1, 23, 59, 59);
+		var end = new Date(2016, 4, 1, 12, 34, 56);
 
 		var range = new DateRange(start, end);
 
-		var timeless = range.timeless();
+		expect(range.start.getSeconds()).toBe(0);
+		expect(range.start.getMinutes()).toBe(0);
+		expect(range.start.getHours()).toBe(0);
 
-		expect(timeless instanceof DateRange).toBe(true);
-
-		expect(timeless.start.getSeconds()).toBe(0);
-		expect(timeless.start.getMinutes()).toBe(0);
-		expect(timeless.start.getHours()).toBe(0);
-
-		expect(timeless.end.getSeconds()).toBe(0);
-		expect(timeless.end.getMinutes()).toBe(0);
-		expect(timeless.end.getHours()).toBe(0);
+		expect(range.end.getSeconds()).toBe(0);
+		expect(range.end.getMinutes()).toBe(0);
+		expect(range.end.getHours()).toBe(0);
 	});
 
 	it('should throw when start and end are on the same date.', function()
 	{
-		var start = new Date(2015, 0, 1, 6, 12, 34);
+		var start = new Date(2015, 0, 1, 7, 8, 956);
 
-		var end = new Date(2015, 0, 1, 23, 59, 59);
-
-		var range = new DateRange(start, end);
+		var end = new Date(2015, 0, 1, 12, 34, 56);
 
 		expect(function()
 		{
-			range.timeless();
+			new DateRange(start, end);
 		}).toThrow();
 	});
 });
@@ -77,97 +68,49 @@ describe('DateRange@getTime', function()
 {
 	it('should return the miliseconds between start and end dates.', function()
 	{
-		var start = new Date(2015, 0, 1, 6, 12, 34);
+		var start = new Date(2015, 0, 1);
 
-		var end = new Date(2015, 1, 1, 23, 59, 59);
+		var end = new Date(2015, 1, 1);
 
 		var range = new DateRange(start, end);
 
-		expect(range.getTime()).toBe(2742445000);
+		expect(range.getTime()).toBe(2678400000);
 	});
 });
 
-describe('DateRange@getSeconds', function()
+describe('DateRange@countDays', function()
 {
-	it('should return the seconds between start and end dates.', function()
+	it('should return the number days that are in the range.', function()
 	{
-		var start = new Date(2015, 0, 1, 6, 12, 23);
+		var start = new Date(2015, 0, 1);
 
-		var end = new Date(2015, 0, 1, 6, 12, 34);
+		var end = new Date(2015, 1, 1);
 
 		var range = new DateRange(start, end);
 
-		expect(range.getSeconds()).toBe(11);
-	});
-});
-
-describe('DateRange@getMinutes', function()
-{
-	it('should return the seconds between start and end dates.', function()
-	{
-		var start = new Date(2015, 0, 1, 6, 12, 34);
-
-		var end = new Date(2015, 0, 1, 6, 59, 59);
-
-		var range = new DateRange(start, end);
-
-		expect(range.getMinutes()).toBe(47);
-	});
-});
-
-describe('DateRange@getHours', function()
-{
-	it('should return the seconds between start and end dates.', function()
-	{
-		var start = new Date(2015, 0, 1, 23, 12, 34);
-
-		var end = new Date(2015, 0, 2, 6, 59, 59);
-
-		var range = new DateRange(start, end);
-
-		expect(range.getHours()).toBe(7);
-	});
-});
-
-describe('DateRange@getDays', function()
-{
-	it('should return the days between start and end dates.', function()
-	{
-		var start = new Date(2015, 0, 1, 6, 12, 34);
-
-		var end = new Date(2015, 1, 1, 23, 59, 59);
-
-		var range = new DateRange(start, end);
-
-		expect(range.getDays()).toBe(31);
-	});
-});
-
-describe('DateRange@getWeeks', function()
-{
-	it('should return the weeks between start and end dates.', function()
-	{
-		var start = new Date(2015, 0, 1, 6, 12, 34);
-
-		var end = new Date(2015, 1, 7, 23, 59, 59);
-
-		var range = new DateRange(start, end);
-
-		expect(range.getWeeks()).toBe(5);
+		expect(range.countDays()).toBe(32);
 	});
 });
 
 describe('DateRange@getYears', function()
 {
-	it('should return the years between start and end dates.', function()
+	var start = new Date(2005, 4, 1);
+
+	var end = new Date(2017, 1, 1);
+
+	var range = new DateRange(start, end);
+
+	it('should return an array.', function()
 	{
-		var start = new Date(2015, 4, 1, 6, 12, 34);
+		expect(range.getYears() instanceof Array).toBe(true);
+	});
 
-		var end = new Date(2017, 1, 1, 23, 59, 59);
-
-		var range = new DateRange(start, end);
-
-		expect(range.getYears()).toBe(1);
+	it('should return all years in the range.', function()
+	{
+		expect(range.getYears().length).toBe(13);
+		expect(range.getYears()[0]).toBe(2005);
+		expect(range.getYears()[5]).toBe(2010);
+		expect(range.getYears()[12]).toBe(2017);
 	});
 });
 
@@ -215,9 +158,9 @@ describe('DateRange@getSundays', function()
 	});
 });
 
-describe('DateRange@countFridays', function()
+describe('DateRange@getFridays', function()
 {
-	it('should return the number dates in the range that are a friday.', function()
+	it('should return the dates in the range that are a friday.', function()
 	{
 		var start = new Date(2016, 5, 5);
 
@@ -225,7 +168,16 @@ describe('DateRange@countFridays', function()
 
 		var range = new DateRange(start, end);
 
-		expect(range.countFridays()).toBe(3);
+		var sundays = range.getFridays();
+
+		expect(sundays instanceof Array).toBe(true);
+		expect(sundays.length).toBe(3);
+
+		expect(sundays[0].getDate()).toBe(10);
+		expect(sundays[0].getMonth()).toBe(5);
+
+		expect(sundays[2].getDate()).toBe(24);
+		expect(sundays[2].getMonth()).toBe(5);
 	});
 });
 
@@ -292,6 +244,7 @@ describe('DateRange@contains', function()
 		var range = new DateRange(start, end);
 
 		expect(range.contains(null)).toBe(false);
+		expect(range.contains(new Date(''))).toBe(false);
 	});
 });
 
@@ -398,5 +351,85 @@ describe('DateRange@doesIntersect', function()
 		);
 
 		expect(range1.doesIntersect(range2)).toBe(false);
+	});
+});
+
+describe('DateRange@getLeapYears', function()
+{
+	it('should return a list of years.', function()
+	{
+		var range = new DateRange(
+			new Date(1900, 0, 1), new Date(2016, 5, 28)
+		);
+
+		expect(range.getLeapYears() instanceof Array).toBe(true);
+	});
+
+	it('should return years that are devidable by 4.', function()
+	{
+		var range = new DateRange(
+			new Date(1900, 0, 1), new Date(2016, 5, 28)
+		);
+
+		var leapYears = range.getLeapYears();
+
+		expect(leapYears.indexOf(1996)).not.toBe(-1);
+		expect(leapYears.indexOf(2004)).not.toBe(-1);
+		expect(leapYears.indexOf(1956)).not.toBe(-1);
+	});
+
+	it('should not return years that are devidable by 100.', function()
+	{
+		var range = new DateRange(
+			new Date(1900, 0, 1), new Date(2016, 5, 28)
+		);
+
+		var leapYears = range.getLeapYears();
+
+		expect(leapYears.indexOf(1900)).toBe(-1);
+	});
+
+	it('should return years that are devidable by 400.', function()
+	{
+		var range = new DateRange(
+			new Date(1900, 0, 1), new Date(2016, 5, 28)
+		);
+
+		var leapYears = range.getLeapYears();
+
+		expect(leapYears.indexOf(2000)).not.toBe(-1);
+	});
+});
+
+describe('DateRange@getFridayThe13ths', function()
+{
+	it('should return a list of dates.', function()
+	{
+		var range = new DateRange(
+			new Date(1900, 0, 1), new Date(2016, 5, 28)
+		);
+
+		expect(range.getFridayThe13ths() instanceof Array).toBe(true);
+	});
+
+	it('should return a list of dates.', function()
+	{
+		var range = new DateRange(
+			new Date(1929, 0, 1), new Date(2016, 5, 28)
+		);
+
+		var fridays = range.getFridayThe13ths();
+
+		var first = fridays.shift();
+
+		expect(first.getFullYear()).toBe(1929);
+		expect(first.getMonth()).toBe(8);
+		expect(first.getDate()).toBe(13);
+		
+		var last = fridays.pop();
+
+		expect(last.getFullYear()).toBe(2016);
+		expect(last.getMonth()).toBe(4);
+		expect(last.getDate()).toBe(13);
 	});
 });
