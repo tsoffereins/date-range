@@ -51,7 +51,7 @@ describe('DateRange@construct', function()
 		expect(range.end.getHours()).toBe(0);
 	});
 
-	it('should throw when start and end are on the same date.', function()
+	it('should throw when start and end are on the same date after removing time.', function()
 	{
 		var start = new Date(2015, 0, 1, 7, 8, 956);
 
