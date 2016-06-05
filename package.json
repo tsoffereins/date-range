@@ -1,6 +1,6 @@
 {
   "name": "date-range-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A JavaScript value object for a date range.",
   "main": "dist/date-range.js",
   "scripts": {
