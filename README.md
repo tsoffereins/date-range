@@ -34,25 +34,25 @@ console.log(range.countDays()); // logs e.g. 5278
 It is also possible to list the years or only the leap years in the range.
 
 ```javascript
-console.log(range.getYears()); logs [1996, 1997, 1998, ...]
+console.log(range.getYears()); // logs [1996, 1997, 1998, ...]
 
-console.log(range.getLeapYears()); logs [1996, 2000, 2004, ...]
+console.log(range.getLeapYears()); // logs [1996, 2000, 2004, ...]
 ```
 
 For creating calendars it might be usefull to list all dates in a range or only the mondays, thursdays of even all friday-the-13ths.
 
 ```javascript
 // List all dates in the range as Date-objects.
-console.log(range.getDates()); logs [date, date, date, ...]
+console.log(range.getDates()); // logs [date, date, date, ...]
 
 // List all dates in the range that are a monday.
-console.log(range.getMondays()); logs [date, date, date, ...]
+console.log(range.getMondays()); // logs [date, date, date, ...]
 
 // List all dates in the range that are a saturday.
-console.log(range.getSaturdays()); logs [date, date, date, ...]
+console.log(range.getSaturdays()); // logs [date, date, date, ...]
 
 // List all dates in the range that are a friday-the-13th.
-console.log(range.getFridayThe13ths()); logs [date, date, date, ...]
+console.log(range.getFridayThe13ths()); // logs [date, date, date, ...]
 ```
 
 ### Performing calculations
