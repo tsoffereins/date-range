@@ -1,5 +1,5 @@
 {
-  "name": "date-range",
+  "name": "date-range-js",
   "version": "1.0.0",
   "description": "A JavaScript value object for a date range.",
   "main": "dist/date-range.js",

@@ -1,5 +1,5 @@
 {
-  "name": "date-range",
+  "name": "date-range-js",
   "description": "A JavaSctipt value object for a date range.",
   "main": "dist/date-range.js",
   "keywords": [
