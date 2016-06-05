@@ -4,10 +4,10 @@ A JavaScript value object for a date range.
 ## Installation
 
 ###Bower
-`bower install date-range`
+`bower install date-range-js`
 
 ### NPM
-`npm install date-range`
+`npm install date-range-js`
 
 ## Usage
 
